@@ -1,0 +1,230 @@
+﻿create table songs
+(
+	song_id	 serial,
+	song_name	 varchar(100),
+	song_time	 varchar(100),
+	primary key (song_id) 
+
+);
+
+create table singers
+(
+	singer_id	 	 serial,
+	singer_name	 varchar(100),
+	singer_gender	 varchar(5),
+	singer_nationality	 varchar(30),		
+
+	primary key(singer_id)
+
+);
+
+create table albums
+(
+	album_id	 serial,
+	album_name	 varchar(100),
+	singer_id	 int,
+
+	primary key(album_id)
+
+);
+
+create table tags
+(
+	tag_id	 serial,
+	tag_name	 varchar(100),
+
+	primary key(tag_id)
+);
+
+
+create table listened
+(
+	email 	  varchar(100),
+	song_id	  int,
+	
+	primary key(email, song_id)
+	
+);
+
+create table liked
+(
+	email 	 varchar(100),
+	song_id	 int,
+	
+	primary key(email, song_id)
+);
+
+
+create table song_tags
+(
+	song_id	 int,
+	tag_id	 int,
+
+	primary key(song_id,tag_id)
+);
+
+create table song_albums
+(
+	song_id	 int,
+	album_id	 int,
+
+	primary key(song_id,album_id)	
+
+);
+
+create table song_singers
+(
+	song_id	 int,
+	singer_id	 int,
+
+	primary key (song_id,singer_id)
+
+);
+
+insert into songs(song_name,song_time)
+	 values('晴天','04:29');
+insert into singers(singer_name)
+	values('周杰伦');
+insert into albums(album_name)
+	values('叶惠美');
+insert into song_albums(song_id,album_id)
+	values(1,1);
+insert into song_singers(song_id,singer_id)
+	values(1,1);
+
+insert into songs(song_name,song_time)
+	 values('背对背拥抱','03:54');
+insert into singers(singer_name)
+	values('林俊杰');
+insert into albums(album_name)
+	values('100天');
+insert into song_albums(song_id,album_id)
+	values(2,2);
+insert into song_singers(song_id,singer_id)
+	values(2,2);
+
+insert into songs(song_name,song_time)
+	 values('年少有为','04:39');
+insert into singers(singer_name)
+	values('李荣浩');
+insert into albums(album_name)
+	values('耳朵');
+insert into song_albums(song_id,album_id)
+	values(3,3);
+insert into song_singers(song_id,singer_id)
+	values(3,3);
+
+insert into listened(email,song_id)
+	values('123456@qq.com',1);
+insert into listened(email,song_id)
+	values('123456@qq.com',2);
+
+
+insert into liked(email,song_id)
+	values('123456@qq.com',1);
+
+insert into liked(email,song_id)
+	values('123@qq.com',1);
+
+insert into liked(email,song_id)
+	values('123@qq.com',2);
+
+select * from listened;
+
+delete from liked where email='123@qq.com' and song_id='2';
+delete from listened where email='123@qq.com' and song_id='3';
+
+insert into liked(email,song_id)
+	values('123@qq.com',3);
+
+//修改歌曲id
+update songs
+set song_id=108418
+where song_name='背对背拥抱';
+
+update songs
+set song_id=1293886117
+where song_name='年少有为';
+
+insert into songs(song_id,song_name,song_time)
+	 values(25657265,'Rest','05:03');
+
+insert into song_singers(song_id,singer_id)
+	values(25657265,1);
+
+
+
+insert into albums(album_id,album_name)
+	values(1,'100天');
+insert into albums(album_id,album_name)
+	values(2,'耳朵');
+insert into albums(album_id,album_name)
+	values(3,'因你而在');
+insert into albums(album_id,album_name)
+	values(4,'Earth To Mars');
+
+
+insert into song_albums(song_id,album_id)
+	values(108418,1);
+insert into song_albums(song_id,album_id)
+	values(1293886117,2);
+insert into song_albums(song_id,album_id)
+	values(25727803,3);
+insert into song_albums(song_id,album_id)
+	values(25657265,4);
+
+select song_name,singer_name
+from songs,singers,song_singers
+where songs.song_id=song_singers.song_id
+and singers.singer_id=song_singers.singer_id
+and songs.song_id=108418;
+
+select songs.song_id,song_name,singer_name,album_name,song_time 
+from songs,albums,singers,song_singers,song_albums,liked 
+where songs.song_id = song_albums.song_id 
+and songs.song_id = song_singers.song_id 
+and song_singers.singer_id = singers.singer_id 
+and song_albums.album_id = albums.album_id 
+and liked.song_id = songs.song_id and liked.email = '123@qq.com');
+
+
+select songs.song_id,song_name,singer_name,album_name,song_time 
+from songs,albums,singers,song_singers,song_albums
+where songs.song_id = song_albums.song_id 
+and songs.song_id = song_singers.song_id 
+and song_singers.singer_id = singers.singer_id 
+and song_albums.album_id = albums.album_id 
+and not in
+(
+select songs.song_id
+from songs,liked 
+where liked.song_id = songs.song_id and liked.email = '123@qq.com'
+);
+
+select songs.song_id,song_name,singer_name,album_name,song_time 
+from songs,albums,singers,song_singers,song_albums
+where songs.song_id = song_albums.song_id 
+and songs.song_id = song_singers.song_id 
+and song_singers.singer_id = singers.singer_id 
+and song_albums.album_id = albums.album_id 
+and songs.song_id not in
+(
+select songs.song_id 
+from songs,listened  
+where listened.song_id = songs.song_id and listened.email = '123@qq.com' 
+)
+and songs.song_id not in
+(
+select songs.song_id 
+from songs,liked  
+where liked.song_id = songs.song_id and liked.email = '123@qq.com' 
+);
+
+
+select songs.song_id,song_name,singer_name,album_name,song_time
+from songs,albums,singers,song_singers,song_albums,liked
+where songs.song_id = song_albums.song_id
+and songs.song_id = song_singers.song_id
+and song_singers.singer_id = singers.singer_id
+and song_albums.album_id = albums.album_id and
+liked.song_id = songs.song_id and liked.email = '123@qq.com' ;
